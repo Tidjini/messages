@@ -17,7 +17,9 @@ from django.core.wsgi import get_wsgi_application
 # third party
 import socketio
 
-from apps.chats.views import sio
+sio = socketio.Server(async_mode='gevent')
+
+# from apps.chats.views import sio
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 

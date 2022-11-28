@@ -1,8 +1,17 @@
-from django.urls import path
+from django.urls import path, include
 
-from .views import index
+# rest_framework
+from rest_framework.routers import DefaultRouter
+
+# application
+# from .views import index
+from .api_views import ProfilApiViewSet
+
+
+router = DefaultRouter()
+router.register('profils', ProfilApiViewSet)
 
 
 urlpatterns = [
-    path('', index, name='index')
+    path('api/', include(router.urls)),
 ]
