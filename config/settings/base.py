@@ -17,7 +17,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 def get_eviron_var(var_name):
     try:
         return os.environ[var_name]
-
     except:
         message = f"{var_name} not exist in your environment"
         raise ImproperlyConfigured(message)
@@ -25,8 +24,6 @@ def get_eviron_var(var_name):
 
 SECRET_KEY = get_eviron_var("DJ_MESSAGE")
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
 ALLOWED_HOSTS = []
 
