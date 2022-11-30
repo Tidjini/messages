@@ -2,6 +2,7 @@ import uuid
 
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser
+from django.contrib.auth.hashers import check_password
 
 # from django.contrib.postgres.fields import ArrayField todo install psycopg2
 # for image field install pillow
@@ -49,12 +50,52 @@ class Utilisateur(AbstractBaseUser, TimeStampedModel):
     #     models.CharField(max_length=50, blank=True, null=True), blank=True, default=list
     # )
 
-    # def save(self, *args, **kwargs):
-    #     # check if exist
-    #     # -> exist -> check pass -> matched -> save changes of data
-    #     #                        -> else    -> return
-    #     # -> else  -> create new one -> create Token object
-    #     pass
+    @staticmethod
+    def lower_data(keys, **kwargs):
+        data = {k: v.lower() for k, v in kwargs.items() if k in keys and type(v) is str}
+        rest = {k: v for k, v in kwargs.items() if k not in keys}
+        data.update(rest)
+        return data
+
+    @classmethod
+    def create(cls, using="default", *args, **kwargs):
+        data = Utilisateur.lower_data(("username", "nom", "prenom"), kwargs)
+        utilisateur = Utilisateur(**data)
+        utilisateur.set_password(data["password"])
+        utilisateur.is_staff = True
+        return utilisateur.save(using=using)
+
+    @classmethod
+    def exist(cls, keys, **kwargs):
+        # todo set this method in base model class
+        fields = {k: v for k, v in kwargs.items() if k in keys}
+        try:
+            return cls.objects.get(**fields)
+        except cls.DoesNotExist:
+            return None
+
+    def save(self, using="default", *args, **kwargs):
+        if self.pk:
+            return super(Utilisateur, self).save(*args, **kwargs)
+
+        pass
+
+        # utilisateur = Utilisateur.exist(("username",), **kwargs)
+        # if utilisateur:
+        #     print("User exist", utilisateur)
+        #     valide_pass = check_password(kwargs["password"], utilisateur.password)
+        #     if valide_pass:
+        #         print("User exist and password valid")
+        #         return super(Utilisateur, utilisateur).save(*args, **kwargs)
+
+        #     print("User exist and password not valid --> Exception")
+        #     raise Exception(
+        #         "Username exist but password is wrong. check password or try other username"
+        #     )
+
+        # print("User not exist perform create new one")
+
+        # return Utilisateur.create(using, *args, **kwargs)
 
     def __str__(self):
-        return self.username
+        return "username:{}, nom:{}".format(self.username, self.nom)
