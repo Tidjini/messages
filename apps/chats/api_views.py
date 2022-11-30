@@ -19,13 +19,14 @@ class UtilisateurListApiViewSet(viewsets.ReadOnlyModelViewSet):
 
 @api_view(('POST',))
 def create_utilisateur(request):
+    models.Utilisateur.objects.update
     utilisateur = models.Utilisateur(**request.data)
     try:
         utilisateur.save()
-        token = Token.objects.get(user__id=utilisateur.pk)
+        # token = Token.objects.get(user__id=utilisateur.pk)
         return Response({
             'utilisateur': serializers.UtilisateurSerializer(utilisateur).data,
-            'token': token.key
+            # 'token': token.key
         })
     except Exception as e:
         return Response({

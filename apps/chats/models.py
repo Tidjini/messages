@@ -6,8 +6,8 @@ from django.contrib.auth.models import AbstractBaseUser
 
 
 class TimeStampedModel(models.Model):
-    date_creation = models.DateTimeField(auto_now_add=True)
-    date_modification = models.DateTimeField(auto_now=True)
+    date_creation = models.DateTimeField(auto_now_add=True, null=True)
+    date_modification = models.DateTimeField(auto_now=True, null=True)
 
     class Meta:
         abstract = True
@@ -15,7 +15,7 @@ class TimeStampedModel(models.Model):
 
 class Utilisateur(AbstractBaseUser, TimeStampedModel):
     # override primary key with char key, review for UUID
-    id = models.CharField(max_length=100, primary_key=True, default=uuid.uuid4)
+    # id = models.CharField(max_length=100, primary_key=True, default=uuid.uuid4)
     username = models.CharField(max_length=30, unique=True)
     nom = models.CharField(max_length=30, null=False, blank=False)
     prenom = models.CharField(max_length=30, null=False, blank=False)
@@ -91,9 +91,16 @@ class Utilisateur(AbstractBaseUser, TimeStampedModel):
     def update(self, utilisateur):
         if utilisateur.check_password(self.password):
             values = self.__effective
-            del values['id']
-            del values['password']
-            return Utilisateur.objects.filter(pk=utilisateur.id).update(**values)
+            self = Utilisateur(id=utilisateur.id, **values)
+            self.set_password(self.__effective["password"])
+            return super(Utilisateur, self).save()
+            # values = self.__effective
+            # del values['id']
+            # del values['password']
+            # Utilisateur.objects.filter(pk=utilisateur.id).update(**values)
+            # self = Utilisateur.objects.get(pk=utilisateur.id)
+            # print('self', self.__dictionary)
+            # return
 
         raise Exception(
             "Username exist but password is wrong. check password or try other username"
@@ -101,13 +108,14 @@ class Utilisateur(AbstractBaseUser, TimeStampedModel):
 
     def save(self,  *args, **kwargs):
 
-        # todo later review this
-        # if self.pk:
-        #     super(Utilisateur, self).save(*args, **kwargs)
+        if self.pk:
+            super(Utilisateur, self).save(*args, **kwargs)
+
         self.username = self.username.lower()
         utilisateur = self.exist("username")
         if utilisateur:
             return self.update(utilisateur)
+
         self.create(*args, **kwargs)
 
     @staticmethod
