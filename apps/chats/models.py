@@ -18,7 +18,7 @@ class TimeStampedModel(models.Model):
 
 class Utilisateur(AbstractBaseUser, TimeStampedModel):
     # override primary key with char key
-    id = models.CharField(max_length=100, primary_key=True, default=uuid.uuid4)
+    id = models.CharField(max_length=100, primary_key=True)
     username = models.CharField(max_length=30, unique=True)
     nom = models.CharField(max_length=30, null=False, blank=False)
     prenom = models.CharField(max_length=30, null=False, blank=False)
@@ -78,7 +78,7 @@ class Utilisateur(AbstractBaseUser, TimeStampedModel):
         if self.pk:
             return super(Utilisateur, self).save(*args, **kwargs)
 
-        pass
+        # pass
 
         # utilisateur = Utilisateur.exist(("username",), **kwargs)
         # if utilisateur:
