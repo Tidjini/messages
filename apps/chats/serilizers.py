@@ -8,5 +8,5 @@ class UtilisateurSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Utilisateur
-        fields = '__all__'
+        exclude = ['password']
         read_only_fields = 'id',
