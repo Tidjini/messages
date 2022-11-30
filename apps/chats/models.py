@@ -2,7 +2,7 @@ import uuid
 
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser
-from django.contrib.auth.hashers import check_password
+# from django.contrib.auth.hashers import check_password
 
 
 class TimeStampedModel(models.Model):
@@ -15,7 +15,7 @@ class TimeStampedModel(models.Model):
 
 class Utilisateur(AbstractBaseUser, TimeStampedModel):
     # override primary key with char key, review for UUID
-    id = models.UUIDField(primary_key=True)
+    id = models.CharField(max_length=100, primary_key=True, default=uuid.uuid4)
     username = models.CharField(max_length=30, unique=True)
     nom = models.CharField(max_length=30, null=False, blank=False)
     prenom = models.CharField(max_length=30, null=False, blank=False)
@@ -47,49 +47,61 @@ class Utilisateur(AbstractBaseUser, TimeStampedModel):
     #     models.CharField(max_length=50, blank=True, null=True), blank=True, default=list
     # )
 
-    @staticmethod
-    def lower_data(keys, **kwargs):
-        data = {k: v.lower() for k, v in kwargs.items() if k in keys and type(v) is str}
-        rest = {k: v for k, v in kwargs.items() if k not in keys}
+    def lower_data(self, *args):
+        data = {k: v.lower() for k, v in self.__dictionary.items()
+                if k in args and type(v) is str}
+        rest = {k: v for k, v in self.__dictionary.items() if k not in args}
         data.update(rest)
         return data
 
-    @classmethod
-    def create(cls, using="default", *args, **kwargs):
-        data = Utilisateur.lower_data(("username", "nom", "prenom"), kwargs)
+    @property
+    def __dictionary(self):
+        field_names = [f.name for f in self._meta.fields]
+        return {key: value for key, value in self.__dict__.items() if key in field_names}
+
+    @property
+    def __effective(self):
+        field_names = [f.name for f in self._meta.fields]
+        return {key: value for key, value in self.__dict__.items() if key in field_names and value}
+
+    def create(self, *args, **kwargs):
+        data = self.lower_data("username", "nom", "prenom")
         utilisateur = Utilisateur(**data)
         utilisateur.set_password(data["password"])
         utilisateur.is_staff = True
-        return utilisateur.save(using=using)
+        super(Utilisateur, utilisateur).save(*args, **kwargs)
 
-    @classmethod
-    def exist(cls, keys, **kwargs):
-        # todo set this method in base model class
-        fields = {k: v for k, v in kwargs.items() if k in keys}
+    def exist(self, *args):
 
+        fields = {k: v for k, v in self.__dictionary.items() if k in args}
         try:
-            return cls.objects.get(**fields)
-        except cls.MultipleObjectsReturned:
-            return cls.objects.filter(**fields)[0]
-        except cls.DoesNotExist:
+            return Utilisateur.objects.get(**fields)
+        except Utilisateur.MultipleObjectsReturned:
+            return Utilisateur.objects.filter(**fields)[0]
+        except Utilisateur.DoesNotExist:
             return None
 
-    def save(self, using="default", *args, **kwargs):
-        if self.pk:
-            return super(Utilisateur, self).save(*args, **kwargs)
+    def update(self, utilisateur):
+        if utilisateur.check_password(self.password):
+            values = self.__effective
+            del values['id']
+            return Utilisateur.objects.filter(pk=utilisateur.id).update(**values)
 
-        utilisateur = Utilisateur.exist(("username",), **kwargs)
+        raise Exception(
+            "Username exist but password is wrong. check password or try other username"
+        )
+
+    def save(self,  *args, **kwargs):
+
+        # todo later review this
+        # if self.pk:
+        #     super(Utilisateur, self).save(*args, **kwargs)
+        self.username = self.username.lower()
+        utilisateur = self.exist("username")
         if utilisateur:
-
-            valide_pass = check_password(self.password, utilisateur.password)
-            if valide_pass:
-                return super(Utilisateur, utilisateur).save(*args, **kwargs)
-
-            raise Exception(
-                "Username exist but password is wrong. check password or try other username"
-            )
-
-        return Utilisateur.create(using, *args, **kwargs)
+            return self.update(utilisateur)
+        self.create(*args, **kwargs)
 
     def __str__(self):
+
         return "username:{}, nom:{}".format(self.username, self.nom)
