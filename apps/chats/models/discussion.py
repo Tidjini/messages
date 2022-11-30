@@ -4,9 +4,12 @@ from .mixins import TimeStampedModel
 from .utilisateur import Utilisateur
 
 
+# create discussion if not exist between atomic entities
 class Discussion(TimeStampedModel):
+    # for custom discussion with multiples users, use group type
+    TYPES = (("s", "single"), ("g", "group"))
     name = models.CharField(max_length=100)
-    type = models.CharField(max_length=20)
+    type = models.CharField(max_length=1, choices=TYPES, default="s")
 
 
 class Participant(models.Model):
