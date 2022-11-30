@@ -69,8 +69,11 @@ class Utilisateur(AbstractBaseUser, TimeStampedModel):
     def exist(cls, keys, **kwargs):
         # todo set this method in base model class
         fields = {k: v for k, v in kwargs.items() if k in keys}
+
         try:
             return cls.objects.get(**fields)
+        except cls.MultipleObjectsReturned:
+            return cls.objects.filter(**fields)[0]
         except cls.DoesNotExist:
             return None
 
@@ -78,24 +81,18 @@ class Utilisateur(AbstractBaseUser, TimeStampedModel):
         if self.pk:
             return super(Utilisateur, self).save(*args, **kwargs)
 
-        # pass
+        utilisateur = Utilisateur.exist(("username",), **kwargs)
+        if utilisateur:
 
-        # utilisateur = Utilisateur.exist(("username",), **kwargs)
-        # if utilisateur:
-        #     print("User exist", utilisateur)
-        #     valide_pass = check_password(kwargs["password"], utilisateur.password)
-        #     if valide_pass:
-        #         print("User exist and password valid")
-        #         return super(Utilisateur, utilisateur).save(*args, **kwargs)
+            valide_pass = check_password(self.password, utilisateur.password)
+            if valide_pass:
+                return super(Utilisateur, utilisateur).save(*args, **kwargs)
 
-        #     print("User exist and password not valid --> Exception")
-        #     raise Exception(
-        #         "Username exist but password is wrong. check password or try other username"
-        #     )
+            raise Exception(
+                "Username exist but password is wrong. check password or try other username"
+            )
 
-        # print("User not exist perform create new one")
-
-        # return Utilisateur.create(using, *args, **kwargs)
+        return Utilisateur.create(using, *args, **kwargs)
 
     def __str__(self):
         return "username:{}, nom:{}".format(self.username, self.nom)
