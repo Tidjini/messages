@@ -2,7 +2,9 @@ import uuid
 
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser
-from django.contrib.postgres.fields import ArrayField
+
+# from django.contrib.postgres.fields import ArrayField todo install psycopg2
+# for image field install pillow
 
 
 class TimeStampedModel(models.Model):
@@ -29,9 +31,9 @@ class Utilisateur(AbstractBaseUser, TimeStampedModel):
     telephone = models.CharField(max_length=20, null=True, blank=True)
     telephone_deux = models.CharField(max_length=20, null=True, blank=True)
     # as react with fuse
-    role = ArrayField(
-        models.CharField(max_length=50, blank=True, null=True), blank=True, default=list
-    )
+    # role = ArrayField(
+    #     models.CharField(max_length=50, blank=True, null=True), blank=True, default=list
+    # )
 
     date_naissance = models.DateField(null=True, blank=True)
 
@@ -43,9 +45,9 @@ class Utilisateur(AbstractBaseUser, TimeStampedModel):
     # work on exercice by year 2021 (id)
     exercice = models.CharField(max_length=100, null=True, blank=True)
     # authorize to work on
-    database_authorized = ArrayField(
-        models.CharField(max_length=50, blank=True, null=True), blank=True, default=list
-    )
+    # database_authorized = ArrayField(
+    #     models.CharField(max_length=50, blank=True, null=True), blank=True, default=list
+    # )
 
     def __str__(self):
         return self.username

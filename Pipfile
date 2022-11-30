@@ -10,7 +10,7 @@ djangorestframework = "*"
 gevent = "*"
 gevent-websocket = "*"
 python-socketio = "*"
+psycopg2 = "*"
+pillow = "*"
 
 [dev-packages]
-
-

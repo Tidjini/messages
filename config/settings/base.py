@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     # third party library
     "corsheaders",
     "rest_framework",
+    "apps.chats",
 ]
 
 MIDDLEWARE = [
