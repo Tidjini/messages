@@ -18,11 +18,10 @@ from django.conf import settings
 from django.urls import path, include
 from django.conf.urls.static import static
 
-from .api_urls import router
+from .api_urls import urlpatterns
 
-urlpatterns = [
+urlpatterns += [
     path("admin/", admin.site.urls),
-    path("api/", include(router.urls)),
 ]
 
 # if settings.DEBUG:

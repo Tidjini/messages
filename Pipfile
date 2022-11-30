@@ -12,5 +12,6 @@ gevent-websocket = "*"
 python-socketio = "*"
 psycopg2 = "*"
 pillow = "*"
+django-filter = "*"
 
 [dev-packages]

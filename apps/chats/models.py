@@ -92,6 +92,7 @@ class Utilisateur(AbstractBaseUser, TimeStampedModel):
         if utilisateur.check_password(self.password):
             values = self.__effective
             del values['id']
+            del values['password']
             return Utilisateur.objects.filter(pk=utilisateur.id).update(**values)
 
         raise Exception(
