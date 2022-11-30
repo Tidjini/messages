@@ -1,16 +1,7 @@
-import uuid
-
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser
-from django.contrib.auth.hashers import check_password
 
-
-class TimeStampedModel(models.Model):
-    date_creation = models.DateTimeField(auto_now_add=True, null=True)
-    date_modification = models.DateTimeField(auto_now=True, null=True)
-
-    class Meta:
-        abstract = True
+from .mixins import TimeStampedModel
 
 
 class Utilisateur(AbstractBaseUser, TimeStampedModel):
@@ -48,8 +39,11 @@ class Utilisateur(AbstractBaseUser, TimeStampedModel):
     # )
 
     def lower_data(self, *args):
-        data = {k: v.lower() for k, v in self.__dictionary.items()
-                if k in args and type(v) is str}
+        data = {
+            k: v.lower()
+            for k, v in self.__dictionary.items()
+            if k in args and type(v) is str
+        }
         rest = {k: v for k, v in self.__dictionary.items() if k not in args}
         data.update(rest)
         return data
@@ -57,17 +51,23 @@ class Utilisateur(AbstractBaseUser, TimeStampedModel):
     @property
     def __dictionary(self):
         field_names = [f.name for f in self._meta.fields]
-        return {key: value for key, value in self.__dict__.items() if key in field_names}
+        return {
+            key: value for key, value in self.__dict__.items() if key in field_names
+        }
 
     @property
     def __effective(self):
         field_names = [f.name for f in self._meta.fields]
-        return {key: value for key, value in self.__dict__.items() if key in field_names and value}
+        return {
+            key: value
+            for key, value in self.__dict__.items()
+            if key in field_names and value
+        }
 
     def create(self, *args, **kwargs):
         data = self.lower_data("username", "nom", "prenom")
         self.set_password(data["password"])
-        del data['password']
+        del data["password"]
         self.is_staff = True
         self.__dict__.update(data)
         super(Utilisateur, self).save(*args, **kwargs)
@@ -90,6 +90,7 @@ class Utilisateur(AbstractBaseUser, TimeStampedModel):
         return None
 
     def update(self, old, *args, **kwargs):
+        # this update all data come from user
         if old.check_password(self.password):
             # set old id to update
             self.id = old.id
@@ -101,7 +102,7 @@ class Utilisateur(AbstractBaseUser, TimeStampedModel):
             "Username exist but password is wrong. check password or try other username"
         )
 
-    def save(self,  *args, **kwargs):
+    def save(self, *args, **kwargs):
         self.username = self.username.lower()
         if self.pk:
             return super(Utilisateur, self).save(*args, **kwargs)
@@ -115,12 +116,11 @@ class Utilisateur(AbstractBaseUser, TimeStampedModel):
     @staticmethod
     def username_auth(username, password, *args, **kwargs):
         user = Utilisateur(username=username.lower(), password=password)
-        return user.exist_with_password('username')
+        return user.exist_with_password("username")
 
     @property
     def name(self):
-        return '{} {}'.format(self.nom.upper(), self.prenom.title())
+        return "{} {}".format(self.nom.upper(), self.prenom.title())
 
     def __str__(self):
-
         return "username:{}, nom:{}".format(self.username, self.nom)
