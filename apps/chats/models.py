@@ -4,9 +4,6 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.hashers import check_password
 
-# from django.contrib.postgres.fields import ArrayField todo install psycopg2
-# for image field install pillow
-
 
 class TimeStampedModel(models.Model):
     date_creation = models.DateTimeField(auto_now_add=True)
@@ -17,8 +14,8 @@ class TimeStampedModel(models.Model):
 
 
 class Utilisateur(AbstractBaseUser, TimeStampedModel):
-    # override primary key with char key
-    id = models.CharField(max_length=100, primary_key=True)
+    # override primary key with char key, review for UUID
+    id = models.UUIDField(primary_key=True)
     username = models.CharField(max_length=30, unique=True)
     nom = models.CharField(max_length=30, null=False, blank=False)
     prenom = models.CharField(max_length=30, null=False, blank=False)
