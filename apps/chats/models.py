@@ -2,7 +2,7 @@ import uuid
 
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser
-# from django.contrib.auth.hashers import check_password
+from django.contrib.auth.hashers import check_password
 
 
 class TimeStampedModel(models.Model):
@@ -15,7 +15,7 @@ class TimeStampedModel(models.Model):
 
 class Utilisateur(AbstractBaseUser, TimeStampedModel):
     # override primary key with char key, review for UUID
-    # id = models.CharField(max_length=100, primary_key=True, default=uuid.uuid4)
+    # id = models.IntegerField(primary_key=True, auto_created=True)
     username = models.CharField(max_length=30, unique=True)
     nom = models.CharField(max_length=30, null=False, blank=False)
     prenom = models.CharField(max_length=30, null=False, blank=False)
@@ -66,10 +66,11 @@ class Utilisateur(AbstractBaseUser, TimeStampedModel):
 
     def create(self, *args, **kwargs):
         data = self.lower_data("username", "nom", "prenom")
-        utilisateur = Utilisateur(**data)
-        utilisateur.set_password(data["password"])
-        utilisateur.is_staff = True
-        super(Utilisateur, utilisateur).save(*args, **kwargs)
+        self.set_password(data["password"])
+        del data['password']
+        self.is_staff = True
+        self.__dict__.update(data)
+        super(Utilisateur, self).save(*args, **kwargs)
 
     def exist(self, *args):
 
@@ -88,33 +89,27 @@ class Utilisateur(AbstractBaseUser, TimeStampedModel):
             return existed_user
         return None
 
-    def update(self, utilisateur):
-        if utilisateur.check_password(self.password):
+    def update(self, old):
+        if old.check_password(self.password):
             values = self.__effective
-            self = Utilisateur(id=utilisateur.id, **values)
+            self = Utilisateur(id=old.id, **values)
             self.set_password(self.__effective["password"])
             return super(Utilisateur, self).save()
-            # values = self.__effective
-            # del values['id']
-            # del values['password']
-            # Utilisateur.objects.filter(pk=utilisateur.id).update(**values)
-            # self = Utilisateur.objects.get(pk=utilisateur.id)
-            # print('self', self.__dictionary)
-            # return
 
         raise Exception(
             "Username exist but password is wrong. check password or try other username"
         )
 
     def save(self,  *args, **kwargs):
-
-        if self.pk:
-            super(Utilisateur, self).save(*args, **kwargs)
-
         self.username = self.username.lower()
-        utilisateur = self.exist("username")
-        if utilisateur:
-            return self.update(utilisateur)
+        if self.pk:
+            return super(Utilisateur, self).save(*args, **kwargs)
+
+        old = self.exist("username")
+        if old and old.check_password(self.password):
+            self.id = old.id
+            self.password = old.password
+            return super(Utilisateur, self).save(*args, **kwargs)
 
         self.create(*args, **kwargs)
 

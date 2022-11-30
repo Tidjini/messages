@@ -1,5 +1,6 @@
 from django.test import TestCase
 from django.conf import settings
+from django.contrib.auth.hashers import check_password
 
 from . import models
 
@@ -11,6 +12,7 @@ class UtilisateurTestCase(TestCase):
         # replace old user, if has same username and password
         user = models.Utilisateur(
             username='AMine', nom='Amine', prenom='Samir', password='1234')
+
         user.save()
 
     def test_lowercase(self):
@@ -25,6 +27,8 @@ class UtilisateurTestCase(TestCase):
             username='aminE', nom='Amin Ali Mohamed', password='1234')
         user_exist.save()
         user = models.Utilisateur.objects.get(username='amine')
+
+        self.assertEqual(user_exist.id, user.id)
         self.assertEqual(user_exist.nom, user.nom)
         self.assertEqual(models.Utilisateur.objects.count(), 1)
 
