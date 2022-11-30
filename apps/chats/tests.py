@@ -27,3 +27,17 @@ class UtilisateurTestCase(TestCase):
         user = models.Utilisateur.objects.get(username='amine')
         self.assertEqual(user_exist.nom, user.nom)
         self.assertEqual(models.Utilisateur.objects.count(), 1)
+
+    def test_name(self):
+        user = models.Utilisateur(
+            username='aminE', nom='Messaoudi', prenom='tidjini')
+        name = '{} {}'.format('messaoudi'.upper(), 'tidjini'.title())
+        self.assertEqual(user.name, name)
+
+    def test_username_auth(self):
+        success = models.Utilisateur.username_auth(
+            username='amiNe', password='1234')
+        failed = models.Utilisateur.username_auth(
+            username='amiNe', password='123_4')
+        self.assertEqual(bool(success), True)
+        self.assertEqual(bool(failed), False)

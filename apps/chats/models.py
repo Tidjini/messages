@@ -77,9 +77,16 @@ class Utilisateur(AbstractBaseUser, TimeStampedModel):
         try:
             return Utilisateur.objects.get(**fields)
         except Utilisateur.MultipleObjectsReturned:
+            # todo review this in some cases
             return Utilisateur.objects.filter(**fields)[0]
         except Utilisateur.DoesNotExist:
             return None
+
+    def exist_with_password(self, *args):
+        existed_user = self.exist(*args)
+        if existed_user and existed_user.check_password(self.password):
+            return existed_user
+        return None
 
     def update(self, utilisateur):
         if utilisateur.check_password(self.password):
@@ -101,6 +108,15 @@ class Utilisateur(AbstractBaseUser, TimeStampedModel):
         if utilisateur:
             return self.update(utilisateur)
         self.create(*args, **kwargs)
+
+    @staticmethod
+    def username_auth(username, password, *args, **kwargs):
+        user = Utilisateur(username=username.lower(), password=password)
+        return user.exist_with_password('username')
+
+    @property
+    def name(self):
+        return '{} {}'.format(self.nom.upper(), self.prenom.title())
 
     def __str__(self):
 
