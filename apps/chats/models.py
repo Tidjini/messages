@@ -16,7 +16,7 @@ class TimeStampedModel(models.Model):
 
 
 class Utilisateur(AbstractBaseUser, TimeStampedModel):
-    # ovveride primary key with char key
+    # override primary key with char key
     id = models.CharField(max_length=100, primary_key=True, default=uuid.uuid4)
     username = models.CharField(max_length=30, unique=True)
     nom = models.CharField(max_length=30, null=False, blank=False)
@@ -48,6 +48,13 @@ class Utilisateur(AbstractBaseUser, TimeStampedModel):
     # database_authorized = ArrayField(
     #     models.CharField(max_length=50, blank=True, null=True), blank=True, default=list
     # )
+
+    def save(self, *args, **kwargs):
+        # check if exist
+        # -> exist -> check pass -> matched -> save changes of data
+        #                        -> else    -> return
+        # -> else  -> create new one -> create Token object
+        pass
 
     def __str__(self):
         return self.username

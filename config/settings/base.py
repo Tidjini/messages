@@ -25,11 +25,7 @@ def get_eviron_var(var_name):
 
 SECRET_KEY = get_eviron_var("DJ_MESSAGE")
 
-
-ALLOWED_HOSTS = []
-
-
-# Application definition
+AUTH_USER_MODEL = "apps.chats.Utilisateur"
 
 INSTALLED_APPS = [
     "django.contrib.admin",
