@@ -117,6 +117,9 @@ class Utilisateur(AbstractBaseUser, ModelUtilsMixin, TimeStampedModel):
     def single_discussions(self):
         return self.participations.filter(discussion__type='s').values_list('discussion')
 
+    # todo for single discussion get other users
+    # use managers for this
+
     @property
     def group_discussions(self):
         return self.participations.filter(discussion__type='g').values_list('discussion')

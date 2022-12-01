@@ -1,3 +1,4 @@
+import time
 from django.test import TestCase
 from django.conf import settings
 from django.contrib.auth.hashers import check_password
@@ -47,25 +48,57 @@ class UtilisateurTestCase(TestCase):
     #     self.assertEqual(bool(success), True)
     #     self.assertEqual(bool(failed), False)
 
-    def test_discussion(self):
+    # def test_discussion(self):
+
+    #     user = models.Utilisateur(
+    #         username='AMine', nom='Amine', prenom='Samir', password='1234')
+
+    #     disc_one = models.Discussion(name='room one')
+    #     disc_two = models.Discussion(name='room two')
+
+    #     user.save()
+    #     disc_one.save()
+    #     disc_two.save()
+
+    #     part1 = models.Participant(user=user, discussion=disc_one)
+    #     part2 = models.Participant(user=user, discussion=disc_two)
+
+    #     part1.save()
+    #     part2.save()
+
+    #     # dis = [id for id, *_ in user.discussions]
+    #     print(disc_one.participants_count)
+    #     print([id for id in user.single_discussions])
+    #     print([id for id in user.group_discussions])
+
+    def test_discussion_other(self):
 
         user = models.Utilisateur(
             username='AMine', nom='Amine', prenom='Samir', password='1234')
 
+        user2 = models.Utilisateur(
+            username='Imad', nom='Amine', prenom='Samir', password='1234')
+
         disc_one = models.Discussion(name='room one')
-        disc_two = models.Discussion(name='room two')
 
         user.save()
+        user2.save()
         disc_one.save()
-        disc_two.save()
 
         part1 = models.Participant(user=user, discussion=disc_one)
-        part2 = models.Participant(user=user, discussion=disc_two)
+        part2 = models.Participant(user=user2, discussion=disc_one)
+        message = models.Message(
+            user=user2, discussion=disc_one, message="Message Content to TEST 1 ")
+        message2 = models.Message(
+            user=user, discussion=disc_one, message="Message Content to TEST 2 ")
 
         part1.save()
         part2.save()
+        message.save()
+
+        time.sleep(1)
+        message2.save()
 
         # dis = [id for id, *_ in user.discussions]
-        print(disc_one.participants_count)
-        print([id for id in user.single_discussions])
-        print([id for id in user.group_discussions])
+        print(disc_one.other(user))
+        print(disc_one.last_message)
