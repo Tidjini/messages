@@ -109,5 +109,17 @@ class Utilisateur(AbstractBaseUser, ModelUtilsMixin, TimeStampedModel):
     def name(self):
         return "{} {}".format(self.nom.upper(), self.prenom.title())
 
+    @property
+    def discussions(self):
+        return self.participations.values_list('discussion')
+
+    @property
+    def single_discussions(self):
+        return self.participations.filter(discussion__type='s').values_list('discussion')
+
+    @property
+    def group_discussions(self):
+        return self.participations.filter(discussion__type='g').values_list('discussion')
+
     def __str__(self):
         return "username:{}, nom:{}".format(self.username, self.nom)

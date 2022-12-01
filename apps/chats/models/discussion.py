@@ -11,9 +11,13 @@ class Discussion(TimeStampedModel):
     name = models.CharField(max_length=100)
     type = models.CharField(max_length=1, choices=TYPES, default="s")
 
+    @property
+    def participants_count(self):
+        return self.participants.all().count()
+
 
 class Participant(models.Model):
-    utilisateur = models.ForeignKey(
+    user = models.ForeignKey(
         Utilisateur,
         on_delete=models.SET_NULL,
         null=True,
@@ -29,7 +33,7 @@ class Message(TimeStampedModel):
     discussion = models.ForeignKey(
         Discussion, on_delete=models.CASCADE, related_name="messages"
     )
-    utilisateur = models.ForeignKey(
+    user = models.ForeignKey(
         Utilisateur,
         on_delete=models.CASCADE,
         related_name="my_messages",
@@ -38,7 +42,8 @@ class Message(TimeStampedModel):
 
 
 class MessageVue(models.Model):
-    message = models.ForeignKey(Message, on_delete=models.CASCADE, related_name="vues")
-    utilisateur = models.ForeignKey(
+    message = models.ForeignKey(
+        Message, on_delete=models.CASCADE, related_name="vues")
+    user = models.ForeignKey(
         Utilisateur, on_delete=models.CASCADE, related_name="mes_vues"
     )
