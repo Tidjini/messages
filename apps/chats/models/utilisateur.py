@@ -90,22 +90,23 @@ class Utilisateur(AbstractBaseUser, TimeStampedModel):
         return None
 
     def update(self, old, *args, **kwargs):
+        print('Updating ....')
         # this update all data come from user
         if old.check_password(self.password):
+            print('Updating password checked....', old.password)
+            print('Updating new password....', self.password)
             # set old id to update
             self.id = old.id
             # set hashed password for old entity
-            self.password = old.password
+            self.set_password(self.password)
             return super(Utilisateur, self).save(*args, **kwargs)
 
-        raise Exception(
+        raise ValueError(
             "Username exist but password is wrong. check password or try other username"
         )
 
     def save(self, *args, **kwargs):
         self.username = self.username.lower()
-        if self.pk:
-            return super(Utilisateur, self).save(*args, **kwargs)
 
         old = self.exist("username")
         if old:
