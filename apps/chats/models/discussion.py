@@ -21,7 +21,7 @@ class Discussion(TimeStampedModel, ModelUtilsMixin):
     def other(self, user):
         others = self.participants.filter(~Q(user=user))
         if others:
-            return others[0]
+            return others[0].user
         return None
 
     @property

@@ -2,7 +2,7 @@ import time
 from django.test import TestCase
 from django.conf import settings
 from django.contrib.auth.hashers import check_password
-
+from django.db.models.query import Q
 from . import models
 
 
@@ -74,10 +74,10 @@ class UtilisateurTestCase(TestCase):
     def test_discussion_other(self):
 
         user = models.Utilisateur(
-            username='AMine', nom='Amine', prenom='Samir', password='1234')
+            id=1, username='AMine', nom='Amine', prenom='Samir', password='1234')
 
         user2 = models.Utilisateur(
-            username='Imad', nom='Amine', prenom='Samir', password='1234')
+            id=2, username='Imad', nom='Amine', prenom='Samir', password='1234')
 
         disc_one = models.Discussion(name='room one')
 
@@ -88,9 +88,9 @@ class UtilisateurTestCase(TestCase):
         part1 = models.Participant(user=user, discussion=disc_one)
         part2 = models.Participant(user=user2, discussion=disc_one)
         message = models.Message(
-            user=user2, discussion=disc_one, message="Message Content to TEST 1 ")
+            id=1, user=user2, discussion=disc_one, message="Message Content to TEST 1 ")
         message2 = models.Message(
-            user=user, discussion=disc_one, message="Message Content to TEST 2 ")
+            id=2, user=user, discussion=disc_one, message="Message Content to TEST 2 ")
 
         part1.save()
         part2.save()
@@ -100,5 +100,13 @@ class UtilisateurTestCase(TestCase):
         message2.save()
 
         # dis = [id for id, *_ in user.discussions]
-        print(disc_one.other(user))
-        print(disc_one.last_message)
+        other_user1 = disc_one.other(user)
+        other_user2 = disc_one.other(user2)
+
+        last_message = disc_one.last_message
+
+        self.assertEqual(bool(other_user1), True)
+        self.assertEqual(bool(other_user2), True)
+        self.assertEqual(other_user1.id, 2)
+        self.assertEqual(other_user2.id, 1)
+        self.assertEqual(last_message.id, 2)
