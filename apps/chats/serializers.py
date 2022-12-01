@@ -4,31 +4,25 @@ from rest_framework.exceptions import ValidationError
 from . import models
 
 
-class ModelSerializer(serializers.ModelSerializer):
+class ModelSerializerMixin(serializers.ModelSerializer):
 
-    def clean_validate_data(self, *keys):
+    def clean_validate_data_keys(self, *keys):
         '''Clean Data
-        keys: keys to clean
+        keys: Specific Keys to clean
         Clean extensions fields from validated data to be conform with model fields'''
         for key in keys:
             if key in self._validated_data:
                 del self._validated_data[key]
 
-    def clean_validate_data(self, *keys):
-        '''Clean Data
-        keys: keys to clean
+    def clean_validate_data(self):
+        '''Clean Data, to match  the model fields
+
         Clean extensions fields from validated data to be conform with model fields'''
-        for key in keys:
-            if key in self._validated_data:
-                del self._validated_data[key]
-
-    @property
-    def validated_data(self):
-        self.
-        return super().validated_data
+        self._validated_data = {key: value for key, value in self._validated_data.items(
+        ) if key in self.Meta.model.keys()}
 
 
-class UtilisateurSerializer(ModelSerializer):
+class UtilisateurSerializer(ModelSerializerMixin):
     name = serializers.ReadOnlyField()
     password_one = serializers.CharField(
         style={'input_type': 'password'}, write_only=True)
@@ -42,8 +36,7 @@ class UtilisateurSerializer(ModelSerializer):
         if pwd_one != pwd_two:
             raise ValidationError('Passwords not matched, retry again')
 
-        self.clean_validate_data('password_one', 'password_two')
-
+        self.clean_validate_data()
         self._validated_data.update(password=pwd_one)
 
         try:
