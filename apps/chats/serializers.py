@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from . import models
+from .models import Utilisateur, Discussion
 
 
 class ModelSerializerMixin(serializers.ModelSerializer):
@@ -46,6 +46,14 @@ class UtilisateurSerializer(ModelSerializerMixin):
                 'Passwords not matched with original password, retry again')
 
     class Meta:
-        model = models.Utilisateur
+        model = Utilisateur
         exclude = 'password',
+        read_only_fields = 'id',
+
+
+class DiscussionSerializer(ModelSerializerMixin):
+
+    class Meta:
+        model = Discussion
+        fields = '__all__'
         read_only_fields = 'id',

@@ -1,12 +1,22 @@
 
-from rest_framework import permissions, status
+from rest_framework import permissions, status, serializers
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 
 from ..models import Utilisateur, Discussion
+from ..serializers import DiscussionSerializer
 
 
 class DiscussionAPI:
+
+    @staticmethod
+    def response(instance, serializer, *args, **kwargs):
+        serial: serializers.ModelSerializer = serializer(data=instance)
+        return Response(serial.data, *args, **kwargs)
+
+    @staticmethod
+    def discussion_response(instance, *args, **kwargs):
+        return DiscussionAPI.response(instance, DiscussionSerializer, *args, **kwargs)
 
     @api_view(('POST',))
     @permission_classes((permissions.IsAuthenticated,))
@@ -35,12 +45,13 @@ class DiscussionAPI:
             id = common_discussion[0]
             try:
                 discussion = Discussion.objects.get(id=id)
-                return Response('RETURN DISCUSSION')
+                return DiscussionAPI.discussion_response(discussion, status=status.HTTP_200_OK)
             except Discussion.DoesNotExist:
                 pass
             except Discussion.MultipleObjectsReturned:
-                # todo make sure of this one, filter and return ?
-                pass
+                # todo make sure of this one, or filter and return ?
+                discussion = Discussion.objects.filter(id=id)[0]
+                return DiscussionAPI.discussion_response(discussion, status=status.HTTP_200_OK)
 
         # create an new one
 
