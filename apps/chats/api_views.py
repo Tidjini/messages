@@ -1,10 +1,17 @@
 from rest_framework import viewsets, permissions, filters, status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.exceptions import JsonResponse
 from rest_framework.authtoken.models import Token
 
 from . import models, serializers
+
+
+def auth_response(user, serializer):
+    token = Token.objects.get(user=user)
+    return {
+        **serializer.data, 'token': token.key
+    }
 
 
 class UtilisateurListApiViewSet(viewsets.ModelViewSet):
@@ -16,38 +23,22 @@ class UtilisateurListApiViewSet(viewsets.ModelViewSet):
     ordering_fields = 'name', 'telephone', 'exercice'
     pagination_class = None
 
-    # def create(self, request, *args, **kwargs):
-    #     serializer = self.get_serializer(data=request.data)
+    def create(self, request, *args, **kwargs):
+        # override create to send token to user
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        instance = serializer.save()
+        response = auth_response(instance, serializer)
 
-    #     serializer.is_valid(raise_exception=True)
-
-    #     # try to check two password
-
-    #     self.perform_create(serializer)
-
-    #     headers = self.get_success_headers(serializer.data)
-    #     return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-
-    # def perform_create(self, serializer):
-    #     serializer.save()
+        headers = self.get_success_headers(serializer.data)
+        return Response(response, status=status.HTTP_201_CREATED, headers=headers)
 
 
-# @api_view(('POST',))
-# def create_utilisateur(request):
-#     utilisateur = models.Utilisateur(**request.data)
-#     try:
-#         utilisateur.save()
-#     except Exception as e:
-#         return Response({
-#             'code': 100,
-#             "message": f'Exception due to {e}'
-#         })
-
-#     token = Token.objects.get(user=utilisateur)
-#     return Response({
-#         'utilisateur': serializers.UtilisateurSerializer(utilisateur).data,
-#         'token': token.key
-#     })
-
-
-# def
+@api_view(('GET',))
+@permission_classes((permissions.IsAuthenticated,))
+def token_auth(request, *args, **kwargs):
+    # set request header with Authorisation: token xxxxxxxxxxxxxx
+    user = request.user
+    serializer = serializers.UtilisateurSerializer(user)
+    response = auth_response(user, serializer)
+    return Response(response, status=status.HTTP_200_OK)

@@ -53,6 +53,7 @@ class Utilisateur(AbstractBaseUser, ModelUtilsMixin, TimeStampedModel):
         self.set_password(data["password"])
         del data["password"]
         self.is_staff = True
+        self.is_active = True
         self.__dict__.update(data)
         super(Utilisateur, self).save(*args, **kwargs)
 
