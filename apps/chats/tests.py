@@ -104,9 +104,11 @@ class UtilisateurTestCase(TestCase):
         other_user2 = disc_one.other(user2)
 
         last_message = disc_one.last_message
+        part_count = disc_one.participants_count
 
         self.assertEqual(bool(other_user1), True)
         self.assertEqual(bool(other_user2), True)
         self.assertEqual(other_user1.id, 2)
         self.assertEqual(other_user2.id, 1)
         self.assertEqual(last_message.id, 2)
+        self.assertEqual(part_count, 2)

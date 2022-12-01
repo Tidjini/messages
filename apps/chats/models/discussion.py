@@ -12,8 +12,6 @@ class Discussion(TimeStampedModel, ModelUtilsMixin):
     name = models.CharField(max_length=100)
     type = models.CharField(max_length=1, choices=TYPES, default="s")
 
-    # todo get last message in discussion
-
     @property
     def participants_count(self):
         return self.participants.all().count()
@@ -45,6 +43,9 @@ class Participant(models.Model):
         return self.user.name
 
 
+# TODO CRUD MESSAGES with Authenticated user
+# TODO Push Notification to Current Discussion / user Thread with signals
+# TODO Implemeting the socketio with gevent
 class Message(TimeStampedModel):
     discussion = models.ForeignKey(
         Discussion, on_delete=models.CASCADE, related_name="messages"
