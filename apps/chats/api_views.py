@@ -34,11 +34,28 @@ class UtilisateurListApiViewSet(viewsets.ModelViewSet):
         return Response(response, status=status.HTTP_201_CREATED, headers=headers)
 
 
-@api_view(('GET',))
-@permission_classes((permissions.IsAuthenticated,))
-def token_auth(request, *args, **kwargs):
-    # set request header with Authorisation: token xxxxxxxxxxxxxx
-    user = request.user
-    serializer = serializers.UtilisateurSerializer(user)
-    response = auth_response(user, serializer)
-    return Response(response, status=status.HTTP_200_OK)
+class AuthenticationAPI:
+
+    @staticmethod
+    def response(user, *args, **kwargs):
+        serializer = serializers.UtilisateurSerializer(user)
+        response = auth_response(user, serializer)
+        return Response(response, status=status.HTTP_200_OK)
+
+    @api_view(('GET',))
+    @permission_classes((permissions.IsAuthenticated,))
+    @staticmethod
+    def token(request, *args, **kwargs):
+        # set request header with Authorisation: token xxxxxxxxxxxxxx
+        user = request.user
+        return AuthenticationAPI.response(user)
+
+    @api_view(('POST', ))
+    @staticmethod
+    def username(request, *args, **kwargs):
+        uname, pwd, *_ = [value for value in request.data.values()]
+
+        user = models.Utilisateur.username_auth(uname, pwd)
+        if user:
+            return AuthenticationAPI.response(user)
+        return Response('User not exist', status=status.HTTP_404_NOT_FOUND)

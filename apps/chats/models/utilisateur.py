@@ -99,7 +99,11 @@ class Utilisateur(AbstractBaseUser, ModelUtilsMixin, TimeStampedModel):
     @staticmethod
     def username_auth(username, password, *args, **kwargs):
         user = Utilisateur(username=username.lower(), password=password)
-        return user.exist_with_password("username")
+        user = user.exist_with_password("username")
+        # make sure is active
+        if user and user.is_active:
+            return user
+        return None
 
     @property
     def name(self):
