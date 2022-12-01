@@ -7,9 +7,25 @@ from . import models
 class ModelSerializer(serializers.ModelSerializer):
 
     def clean_validate_data(self, *keys):
+        '''Clean Data
+        keys: keys to clean
+        Clean extensions fields from validated data to be conform with model fields'''
         for key in keys:
             if key in self._validated_data:
                 del self._validated_data[key]
+
+    def clean_validate_data(self, *keys):
+        '''Clean Data
+        keys: keys to clean
+        Clean extensions fields from validated data to be conform with model fields'''
+        for key in keys:
+            if key in self._validated_data:
+                del self._validated_data[key]
+
+    @property
+    def validated_data(self):
+        self.
+        return super().validated_data
 
 
 class UtilisateurSerializer(ModelSerializer):

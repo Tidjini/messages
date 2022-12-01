@@ -1,10 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser
 
-from .mixins import TimeStampedModel
+from .mixins import TimeStampedModel, ModelUtilsMixin
 
 
-class Utilisateur(AbstractBaseUser, TimeStampedModel):
+class Utilisateur(AbstractBaseUser, ModelUtilsMixin, TimeStampedModel):
     # override primary key with char key, review for UUID
     # id = models.IntegerField(primary_key=True, auto_created=True)
     username = models.CharField(max_length=30, unique=True)
@@ -41,28 +41,12 @@ class Utilisateur(AbstractBaseUser, TimeStampedModel):
     def lower_data(self, *args):
         data = {
             k: v.lower()
-            for k, v in self.__dictionary.items()
+            for k, v in self.dictionary.items()
             if k in args and type(v) is str
         }
-        rest = {k: v for k, v in self.__dictionary.items() if k not in args}
+        rest = {k: v for k, v in self.dictionary.items() if k not in args}
         data.update(rest)
         return data
-
-    @property
-    def __dictionary(self):
-        field_names = [f.name for f in self._meta.fields]
-        return {
-            key: value for key, value in self.__dict__.items() if key in field_names
-        }
-
-    @property
-    def __effective(self):
-        field_names = [f.name for f in self._meta.fields]
-        return {
-            key: value
-            for key, value in self.__dict__.items()
-            if key in field_names and value
-        }
 
     def create(self, *args, **kwargs):
         data = self.lower_data("username", "nom", "prenom")
@@ -74,7 +58,7 @@ class Utilisateur(AbstractBaseUser, TimeStampedModel):
 
     def exist(self, *args):
 
-        fields = {k: v for k, v in self.__dictionary.items() if k in args}
+        fields = {k: v for k, v in self.dictionary.items() if k in args}
         try:
             return Utilisateur.objects.get(**fields)
         except Utilisateur.MultipleObjectsReturned:
@@ -90,11 +74,8 @@ class Utilisateur(AbstractBaseUser, TimeStampedModel):
         return None
 
     def update(self, old, *args, **kwargs):
-        print('Updating ....')
         # this update all data come from user
         if old.check_password(self.password):
-            print('Updating password checked....', old.password)
-            print('Updating new password....', self.password)
             # set old id to update
             self.id = old.id
             # set hashed password for old entity
