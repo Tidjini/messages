@@ -24,7 +24,7 @@ class Discussion(TimeStampedModel, ModelUtilsMixin):
 
     @property
     def last_message(self):
-        return self.messages.order_by('-date_creation').first()
+        return self.messages.order_by("-date_creation").first()
 
 
 class Participant(models.Model):
@@ -43,27 +43,36 @@ class Participant(models.Model):
         return self.user.name
 
 
-# TODO CRUD MESSAGES with Authenticated user
+# TODO CD MESSAGES with Authenticated user not all Crud
+# TODO GET Messages of specific Discussion
 # TODO Push Notification to Current Discussion / user Thread with signals
 # TODO Implemeting the socketio with gevent
 class Message(TimeStampedModel):
     discussion = models.ForeignKey(
         Discussion, on_delete=models.CASCADE, related_name="messages"
     )
-    user = models.ForeignKey(
+    sender = models.ForeignKey(
         Utilisateur,
         on_delete=models.CASCADE,
         related_name="my_messages",
     )
     message = models.TextField()
 
+    @property
+    def receivers(self):
+        # todo group discussion
+        return []
+
+    @property
+    def receiver(self):
+        return self.discussion.other(self.sender)
+
     def __str__(self):
-        return '{}-{} : {}'.format(self.discussion.name, self.user.name, self.message)
+        return "{}-{} : {}".format(self.discussion.name, self.user.name, self.message)
 
 
 class MessageVue(models.Model):
-    message = models.ForeignKey(
-        Message, on_delete=models.CASCADE, related_name="vues")
+    message = models.ForeignKey(Message, on_delete=models.CASCADE, related_name="vues")
     user = models.ForeignKey(
         Utilisateur, on_delete=models.CASCADE, related_name="mes_vues"
     )

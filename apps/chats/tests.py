@@ -4,10 +4,10 @@ from django.conf import settings
 from django.contrib.auth.hashers import check_password
 from django.db.models.query import Q
 from . import models
+from . import serializers
 
 
 class UtilisateurTestCase(TestCase):
-
     def setUp(self):
         pass
         # is lower checking
@@ -74,12 +74,14 @@ class UtilisateurTestCase(TestCase):
     def test_discussion_other(self):
 
         user = models.Utilisateur(
-            id=1, username='AMine', nom='Amine', prenom='Samir', password='1234')
+            id=1, username="AMine", nom="Amine", prenom="Amine", password="1234"
+        )
 
         user2 = models.Utilisateur(
-            id=2, username='Imad', nom='Amine', prenom='Samir', password='1234')
+            id=2, username="Imad", nom="Imad", prenom="Imad", password="1234"
+        )
 
-        disc_one = models.Discussion(name='room one')
+        disc_one = models.Discussion(name="room one")
 
         user.save()
         user2.save()
@@ -88,9 +90,14 @@ class UtilisateurTestCase(TestCase):
         part1 = models.Participant(user=user, discussion=disc_one)
         part2 = models.Participant(user=user2, discussion=disc_one)
         message = models.Message(
-            id=1, user=user2, discussion=disc_one, message="Message Content to TEST 1 ")
+            id=1,
+            sender=user2,
+            discussion=disc_one,
+            message="Message Content to TEST 1 ",
+        )
         message2 = models.Message(
-            id=2, user=user, discussion=disc_one, message="Message Content to TEST 2 ")
+            id=2, sender=user, discussion=disc_one, message="Message Content to TEST 2 "
+        )
 
         part1.save()
         part2.save()
@@ -98,6 +105,9 @@ class UtilisateurTestCase(TestCase):
 
         time.sleep(1)
         message2.save()
+
+        message_serial = serializers.MessageSerializer(message)
+        print(message_serial.data)
 
         # dis = [id for id, *_ in user.discussions]
         other_user1 = disc_one.other(user)
