@@ -107,10 +107,41 @@ class DiscussionApiViewSet(viewsets.ModelViewSet):
 
 # class DiscussionApiViewSet(viewsets.GenericViewSet, mixins.)
 
-class MessageApiViewSet(mixins.CreateModelMixin, mixins.DestroyModelMixin, viewsets.GenericViewSet):
+class MessageApiViewSet(viewsets.ModelViewSet):
 
     queryset = Message.objects.all()
     serializer_class = MessageSerializer
     permission_classes = (permissions.IsAuthenticated,)
-    
 
+    def create(self, request, *args, **kwargs):
+        user = request.user
+        request.data.update(sender=user.id)
+        return super().create(request, *args, **kwargs)
+
+    def list(self, request, *args, **kwargs):
+        user = request.user
+        discussion = request.query_params.get('discussion', None)
+        try:
+            discussion = int(discussion)
+        except:
+            discussion = None
+
+
+        if discussion is None:
+            return Response({'detail': 'Non Discussion Id was provided'}, status=status.HTTP_401_UNAUTHORIZED)
+        self.queryset = Message.objects.filter(discussion__pk = discussion, 
+            discussion__participants__user=user).order_by('date_creation')
+
+        return super().list(request, *args, **kwargs)
+    
+    def destroy(self, request, *args, **kwargs):
+        user = request.user
+        instance = self.get_object()
+
+        if instance.sender != user:
+            return Response({'detail': 'You can delete this one, you are not sender'}, status=status.HTTP_401_UNAUTHORIZED) 
+        
+        return super().destroy(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        pass

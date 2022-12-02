@@ -65,7 +65,7 @@ class Message(TimeStampedModel):
 
     @property
     def receiver(self):
-        return self.discussion.other(self.sender)
+        return self.discussion.other(self.sender).id
 
     def __str__(self):
         return "{}-{} : {}".format(self.discussion.name, self.user.name, self.message)
