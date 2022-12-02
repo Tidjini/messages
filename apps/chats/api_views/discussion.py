@@ -1,12 +1,33 @@
-from rest_framework import viewsets, permissions, status, serializers
+from rest_framework import viewsets, mixins, permissions, status
+from rest_framework import serializers
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 
 from ..models import Utilisateur, Discussion, Participant, Message
-from ..serializers import DiscussionSerializer
+from ..serializers import DiscussionSerializer, MessageSerializer
 
 
-class DiscussionAPI:
+class DiscussionApiViewSet(viewsets.ModelViewSet):
+
+    queryset = Discussion.objects.all()
+    permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = DiscussionSerializer
+
+    
+    def create(self, request, *args, **kwargs):
+        return self.create_discussion(request, *args, **kwargs)
+
+    def list(self, request, *args, **kwargs):
+        user = request.user
+        self.queryset = Discussion.objects.filter(participants__user=user).order_by('id')
+        return super().list(request, *args, **kwargs)
+        
+
+
+        
+
+
+
     @staticmethod
     def get_user(id, *args, **kwargs):
         try:
@@ -17,15 +38,12 @@ class DiscussionAPI:
             # more specifications
             return None
 
-    @staticmethod
-    def response(instance, serializer, *args, **kwargs):
-        serial: serializers.ModelSerializer = serializer(instance)
-        return Response(serial.data, *args, **kwargs)
+    
+    def response(self, instance, *args, **kwargs):
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data, *args, **kwargs)
 
-    @staticmethod
-    def discussion_response(instance, *args, **kwargs):
-        return DiscussionAPI.response(instance, DiscussionSerializer, *args, **kwargs)
-
+  
     @staticmethod
     def get_single_discussion(user_a, user_b):
         # get discussions
@@ -40,13 +58,10 @@ class DiscussionAPI:
             return None
         return common_discussion[0]
 
-    @api_view(("POST",))
-    @permission_classes((permissions.IsAuthenticated,))
-    @staticmethod
-    def create_discussion(request, *args, **kwargs):
+
+    def create_discussion(self, request, *args, **kwargs):
 
         creator: Utilisateur = request.user
-
         # get user by id
         user_id = request.data.get("user", None)
         if not user_id:
@@ -54,17 +69,17 @@ class DiscussionAPI:
                 "Users for discussion not exists", status=status.HTTP_204_NO_CONTENT
             )
 
-        user = DiscussionAPI.get_user(int(user_id))
+        user = DiscussionApiViewSet.get_user(int(user_id))
         if user is None:
-            Response("User Does not exist", status=status.HTTP_204_NO_CONTENT)
+            return Response("User Does not exist", status=status.HTTP_204_NO_CONTENT)
 
         # check existance discussions
-        disc_id = DiscussionAPI.get_single_discussion(creator, user)
+        disc_id = DiscussionApiViewSet.get_single_discussion(creator, user)
 
         if disc_id:
             try:
                 discussion = Discussion.objects.get(id=disc_id)
-                return DiscussionAPI.discussion_response(
+                return self.response(
                     discussion, status=status.HTTP_200_OK
                 )
             except Discussion.DoesNotExist:
@@ -73,7 +88,7 @@ class DiscussionAPI:
             except Discussion.MultipleObjectsReturned:
                 # return the first one
                 discussion = Discussion.objects.filter(id=disc_id)[0]
-                return DiscussionAPI.discussion_response(
+                return self.response(
                     discussion, status=status.HTTP_200_OK
                 )
 
@@ -84,11 +99,18 @@ class DiscussionAPI:
         Participant.objects.create(user=creator, discussion=discussion)
         Participant.objects.create(user=user, discussion=discussion)
 
-        return DiscussionAPI.discussion_response(
+        return self.response(
             discussion, status=status.HTTP_201_CREATED
         )
 
 
-class MessageApiViewSet(viewsets.ModelViewSet):
+
+# class DiscussionApiViewSet(viewsets.GenericViewSet, mixins.)
+
+class MessageApiViewSet(mixins.CreateModelMixin, mixins.DestroyModelMixin, viewsets.GenericViewSet):
 
     queryset = Message.objects.all()
+    serializer_class = MessageSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+    
+

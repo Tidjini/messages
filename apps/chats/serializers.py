@@ -60,10 +60,22 @@ class UtilisateurSerializer(ModelSerializerMixin):
 
 
 class DiscussionSerializer(ModelSerializerMixin):
+
+    participants_count = serializers.ReadOnlyField()
+    other = serializers.SerializerMethodField()
+
     class Meta:
         model = Discussion
         fields = "__all__"
         read_only_fields = ("id",)
+
+    
+    def get_other(self, obj):
+        request = self.context['request']
+        if request and hasattr(request, 'user'):
+            return obj.other(request.user).id
+        return None
+
 
 
 class MessageSerializer(ModelSerializerMixin):
