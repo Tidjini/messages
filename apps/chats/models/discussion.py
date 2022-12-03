@@ -47,7 +47,7 @@ class Participant(models.Model):
 # TODO GET Messages of specific Discussion
 # TODO Push Notification to Current Discussion / user Thread with signals
 # TODO Implemeting the socketio with gevent
-class Message(TimeStampedModel):
+class Message(TimeStampedModel, ModelUtilsMixin):
     discussion = models.ForeignKey(
         Discussion, on_delete=models.CASCADE, related_name="messages"
     )

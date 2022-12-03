@@ -1,9 +1,11 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.conf import settings
-
 from rest_framework.authtoken.models import Token
+
+# application
 from .models.discussion import Message
+from .serializers import MessageSerializer
 from apps.communications.views import sio
 
 
@@ -21,12 +23,10 @@ def message_notification(sender, instance: Message, created, **kwargs):
     if not created:
         return
     
-    # for participant in instance.discussion.other(user=instance.sender):
+    # todo in group of discussions for participant in instance.discussion.other(user=instance.sender):
     participant = instance.discussion.other(user=instance.sender)
     if not participant or participant.token_key is None:
         return 
 
-    print('=================send data to', participant.token_key)
-    sio.emit(participant.token_key, {
-        'message': instance.message
-    })
+    serializer = MessageSerializer(instance)
+    sio.emit(participant.token_key, serializer.data)
