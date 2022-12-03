@@ -13,5 +13,6 @@ python-socketio = "*"
 psycopg2 = "*"
 pillow = "*"
 django-filter = "*"
+requests = "*"
 
 [dev-packages]

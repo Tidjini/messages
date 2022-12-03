@@ -1,7 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser
+from rest_framework.authtoken.models import Token
 
 from .mixins import TimeStampedModel, ModelUtilsMixin
+
 
 
 class Utilisateur(AbstractBaseUser, ModelUtilsMixin, TimeStampedModel):
@@ -123,6 +125,13 @@ class Utilisateur(AbstractBaseUser, ModelUtilsMixin, TimeStampedModel):
     @property
     def group_discussions(self):
         return self.participations.filter(discussion__type='g').values_list('discussion')
+
+    @property
+    def token_key(self):
+        token = Token.objects.get(user=self)
+        if token:
+            return token.key
+        return None
 
     def __str__(self):
         return "username:{}, nom:{}".format(self.username, self.nom)
