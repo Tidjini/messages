@@ -1,20 +1,21 @@
-"""
-WSGI config for settings project.
-
-It exposes the WSGI callable as a module-level variable named ``application``.
-
-For more information on this file, see
-https://docs.djangoproject.com/en/4.1/howto/deployment/wsgi/
-"""
-
+""""""
 import os
+import socketio
+from gevent import pywsgi
+from geventwebsocket.handler import WSGIHandler
 
 # django
 from django.core.wsgi import get_wsgi_application
+from apps.communications.views import sio
 
 
-# from apps.chats.views import sio
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
+django_app = get_wsgi_application()
+application = socketio.WSGIApp(sio, django_app)
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
+server = pywsgi.WSGIServer(('', 8000), application, handler_class=WSGIHandler)
+server.serve_forever()
 
-application = get_wsgi_application()
+
+
+
