@@ -22,9 +22,15 @@ class Discussion(TimeStampedModel, ModelUtilsMixin):
             return others[0].user
         return None
 
+    def other_user(self, user):
+        others = self.participants.filter(~Q(user=user))
+        if others:
+            return others[0].user.dictionary
+        return None
+
     @property
     def last_message(self):
-        return self.messages.order_by("-date_creation").first()
+        return self.messages.order_by("-date_creation").first().dictionary
 
 
 class Participant(models.Model):
@@ -72,7 +78,8 @@ class Message(TimeStampedModel, ModelUtilsMixin):
 
 
 class MessageVue(models.Model):
-    message = models.ForeignKey(Message, on_delete=models.CASCADE, related_name="vues")
+    message = models.ForeignKey(
+        Message, on_delete=models.CASCADE, related_name="vues")
     user = models.ForeignKey(
         Utilisateur, on_delete=models.CASCADE, related_name="mes_vues"
     )

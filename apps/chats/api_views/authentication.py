@@ -29,6 +29,7 @@ class AuthenticationAPI:
 
         uname = request.data.get('username')
         pwd = request.data.get('password')
+        print(f'user: {uname}, {pwd}')
         user = models.Utilisateur.username_auth(uname, pwd)
         if user:
             return AuthenticationAPI.response(user)
