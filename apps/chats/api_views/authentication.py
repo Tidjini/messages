@@ -27,9 +27,8 @@ class AuthenticationAPI:
     @staticmethod
     def username(request, *args, **kwargs):
 
-        uname, pwd = [value for key, value in request.data.items()
-                      if key in ('username', 'password')]
-
+        uname = request.data.get('username')
+        pwd = request.data.get('password')
         user = models.Utilisateur.username_auth(uname, pwd)
         if user:
             return AuthenticationAPI.response(user)
