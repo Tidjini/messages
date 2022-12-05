@@ -24,7 +24,7 @@ class Discussion(TimeStampedModel, ModelUtilsMixin):
 
     @property
     def last_message(self):
-        return self.messages.order_by("-date_creation").first().dictionary
+        return self.messages.order_by("-date_creation").first()
 
 
 class Participant(models.Model):

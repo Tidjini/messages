@@ -59,11 +59,21 @@ class UtilisateurSerializer(ModelSerializerMixin):
         read_only_fields = ("id",)
 
 
+class MessageSerializer(ModelSerializerMixin):
+
+    receiver = serializers.ReadOnlyField()
+
+    class Meta:
+        model = Message
+        fields = "__all__"
+        read_only_fields = ("id",)
+
+
 class DiscussionSerializer(ModelSerializerMixin):
 
     participants_count = serializers.ReadOnlyField()
     other = serializers.SerializerMethodField()
-    last_message = serializers.ReadOnlyField()
+    last_message = serializers.SerializerMethodField()
 
     class Meta:
         model = Discussion
@@ -78,12 +88,8 @@ class DiscussionSerializer(ModelSerializerMixin):
                 return UtilisateurSerializer(other).data
         return None
 
-
-class MessageSerializer(ModelSerializerMixin):
-
-    receiver = serializers.ReadOnlyField()
-
-    class Meta:
-        model = Message
-        fields = "__all__"
-        read_only_fields = ("id",)
+    def get_last_message(self, obj):
+        last = obj.last_message
+        if last:
+            return MessageSerializer(last).data
+        return None
