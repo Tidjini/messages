@@ -86,6 +86,7 @@ class DiscussionSerializer(ModelSerializerMixin):
         read_only_fields = ("id",)
 
     def get_other(self, obj):
+
         request = self.context['request']
         if request and hasattr(request, 'user'):
             other = obj.other(request.user)
@@ -98,3 +99,22 @@ class DiscussionSerializer(ModelSerializerMixin):
         if last:
             return MessageSerializer(last).data
         return None
+
+
+# todo custom this notification to be send with discussion item
+# Todo switch to english in applications
+
+class MessageNotificationSerializer(ModelSerializerMixin):
+
+    receiver = serializers.SerializerMethodField()
+    send_to = UtilisateurSerializer(source='sender', read_only=True)
+    # room = DiscussionSerializer(source='discussion', read_only=True)
+
+    class Meta:
+        model = Message
+        fields = "__all__"
+        read_only_fields = ("id",)
+
+    def get_receiver(self, obj):
+        receiver = obj.receiver
+        return UtilisateurSerializer(receiver).data

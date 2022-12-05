@@ -5,7 +5,7 @@ from rest_framework.authtoken.models import Token
 
 # application
 from .models.discussion import Message
-from .serializers import MessageSerializer
+from .serializers import MessageNotificationSerializer
 from apps.communications.views import sio
 
 
@@ -22,11 +22,11 @@ def create_token(sender, instance, created, **kwargs):
 def message_notification(sender, instance: Message, created, **kwargs):
     if not created:
         return
-    
+
     # todo in group of discussions for participant in instance.discussion.other(user=instance.sender):
     participant = instance.discussion.other(user=instance.sender)
     if not participant or participant.token_key is None:
-        return 
+        return
 
-    serializer = MessageSerializer(instance)
+    serializer = MessageNotificationSerializer(instance)
     sio.emit(participant.token_key, serializer.data)
