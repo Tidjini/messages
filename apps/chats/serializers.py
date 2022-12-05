@@ -63,7 +63,6 @@ class DiscussionSerializer(ModelSerializerMixin):
 
     participants_count = serializers.ReadOnlyField()
     other = serializers.SerializerMethodField()
-    other_user = serializers.SerializerMethodField()
     last_message = serializers.ReadOnlyField()
 
     class Meta:
@@ -76,13 +75,7 @@ class DiscussionSerializer(ModelSerializerMixin):
         if request and hasattr(request, 'user'):
             other = obj.other(request.user)
             if other:
-                return other.id
-        return None
-
-    def get_other_user(self, obj):
-        request = self.context['request']
-        if request and hasattr(request, 'user'):
-            return obj.other_user(request.user)
+                return UtilisateurSerializer(other).data
         return None
 
 

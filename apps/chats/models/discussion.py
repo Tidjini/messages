@@ -22,12 +22,6 @@ class Discussion(TimeStampedModel, ModelUtilsMixin):
             return others[0].user
         return None
 
-    def other_user(self, user):
-        others = self.participants.filter(~Q(user=user))
-        if others:
-            return others[0].user.dictionary
-        return None
-
     @property
     def last_message(self):
         return self.messages.order_by("-date_creation").first().dictionary
