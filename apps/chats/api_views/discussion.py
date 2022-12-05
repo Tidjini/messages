@@ -13,20 +13,14 @@ class DiscussionApiViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = DiscussionSerializer
 
-    
     def create(self, request, *args, **kwargs):
         return self.create_discussion(request, *args, **kwargs)
 
     def list(self, request, *args, **kwargs):
         user = request.user
-        self.queryset = Discussion.objects.filter(participants__user=user).order_by('id')
+        self.queryset = Discussion.objects.filter(
+            participants__user=user).order_by('id')
         return super().list(request, *args, **kwargs)
-        
-
-
-        
-
-
 
     @staticmethod
     def get_user(id, *args, **kwargs):
@@ -38,12 +32,10 @@ class DiscussionApiViewSet(viewsets.ModelViewSet):
             # more specifications
             return None
 
-    
     def response(self, instance, *args, **kwargs):
         serializer = self.get_serializer(instance)
         return Response(serializer.data, *args, **kwargs)
 
-  
     @staticmethod
     def get_single_discussion(user_a, user_b):
         # get discussions
@@ -57,7 +49,6 @@ class DiscussionApiViewSet(viewsets.ModelViewSet):
         if not common_discussion:
             return None
         return common_discussion[0]
-
 
     def create_discussion(self, request, *args, **kwargs):
 
@@ -104,7 +95,6 @@ class DiscussionApiViewSet(viewsets.ModelViewSet):
         )
 
 
-
 # class DiscussionApiViewSet(viewsets.GenericViewSet, mixins.)
 
 class MessageApiViewSet(viewsets.ModelViewSet):
@@ -115,6 +105,8 @@ class MessageApiViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         user = request.user
+        if 'id' in request.data:
+            del request.data['id']
         request.data.update(sender=user.id)
         return super().create(request, *args, **kwargs)
 
@@ -126,21 +118,20 @@ class MessageApiViewSet(viewsets.ModelViewSet):
         except:
             discussion = None
 
-
         if discussion is None:
             return Response({'detail': 'Non Discussion Id was provided'}, status=status.HTTP_401_UNAUTHORIZED)
-        self.queryset = Message.objects.filter(discussion__pk = discussion, 
-            discussion__participants__user=user).order_by('date_creation')
+        self.queryset = Message.objects.filter(discussion__pk=discussion,
+                                               discussion__participants__user=user).order_by('-date_creation')
 
         return super().list(request, *args, **kwargs)
-    
+
     def destroy(self, request, *args, **kwargs):
         user = request.user
         instance = self.get_object()
 
         if instance.sender != user:
-            return Response({'detail': 'You can delete this one, you are not sender'}, status=status.HTTP_401_UNAUTHORIZED) 
-        
+            return Response({'detail': 'You can delete this one, you are not sender'}, status=status.HTTP_401_UNAUTHORIZED)
+
         return super().destroy(request, *args, **kwargs)
 
     def update(self, request, *args, **kwargs):
