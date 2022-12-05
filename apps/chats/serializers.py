@@ -61,12 +61,17 @@ class UtilisateurSerializer(ModelSerializerMixin):
 
 class MessageSerializer(ModelSerializerMixin):
 
-    receiver = serializers.ReadOnlyField()
+    receiver = serializers.SerializerMethodField()
+    send_to = UtilisateurSerializer(source='sender', read_only=True)
 
     class Meta:
         model = Message
         fields = "__all__"
         read_only_fields = ("id",)
+
+    def get_receiver(self, obj):
+        receiver = obj.receiver
+        return UtilisateurSerializer(receiver).data
 
 
 class DiscussionSerializer(ModelSerializerMixin):
