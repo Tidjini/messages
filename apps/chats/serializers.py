@@ -102,13 +102,25 @@ class DiscussionSerializer(ModelSerializerMixin):
 
 
 # todo custom this notification to be send with discussion item
+
+
+class DiscussionNotificationSerializer(ModelSerializerMixin):
+
+    class Meta:
+        model = Discussion
+        fields = "__all__"
+        read_only_fields = ("id",)
+
+
 # Todo switch to english in applications
 
 class MessageNotificationSerializer(ModelSerializerMixin):
 
     receiver = serializers.SerializerMethodField()
     send_to = UtilisateurSerializer(source='sender', read_only=True)
-    # room = DiscussionSerializer(source='discussion', read_only=True)
+    notif_discussion = serializers.SerializerMethodField()
+    # room = DiscussionNotificationSerializer(
+    #     source='discussion', read_only=True)
 
     class Meta:
         model = Message
@@ -118,3 +130,11 @@ class MessageNotificationSerializer(ModelSerializerMixin):
     def get_receiver(self, obj):
         receiver = obj.receiver
         return UtilisateurSerializer(receiver).data
+
+    def get_notif_discussion(self, obj):
+        # here the other is the sender
+        # for receiver perspect
+        other = obj.discussion.other(obj.receiver)
+        data = DiscussionNotificationSerializer(obj.discussion).data
+        data['other'] = UtilisateurSerializer(other).data
+        return data

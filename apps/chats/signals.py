@@ -5,7 +5,7 @@ from rest_framework.authtoken.models import Token
 
 # application
 from .models.discussion import Message
-from .serializers import MessageNotificationSerializer
+from .serializers import MessageNotificationSerializer, MessageSerializer
 from apps.communications.views import sio
 
 
