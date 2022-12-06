@@ -22,6 +22,26 @@ class ModelUtilsMixin(models.Model):
             if key in self.keys() and value
         }
 
+    def lower_data(self, *args):
+        data = {
+            k: v.lower()
+            for k, v in self.dictionary.items()
+            if k in args and type(v) is str
+        }
+        rest = {k: v for k, v in self.dictionary.items() if k not in args}
+        data.update(rest)
+        return data
+
+    def exist(self, *args):
+        fields = {k: v for k, v in self.dictionary.items() if k in args}
+        try:
+            return self.__class__.objects.get(**fields)
+        except self.__class__.MultipleObjectsReturned:
+            # todo review this in some cases
+            return self.model_class.objects.filter(**fields)[0]
+        except self.__class__.DoesNotExist:
+            return None
+
     class Meta:
         abstract = True
 

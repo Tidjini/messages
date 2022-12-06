@@ -49,9 +49,7 @@ class UtilisateurSerializer(ModelSerializerMixin):
         try:
             return super().save(**kwargs)
         except ValueError as e:
-            raise ValidationError(
-                "Passwords not matched with original password, retry again"
-            )
+            raise ValidationError(f'Exception du to: {e}')
 
     class Meta:
         model = Utilisateur

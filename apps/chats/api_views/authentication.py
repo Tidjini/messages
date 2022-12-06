@@ -3,7 +3,8 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 
 
-from .. import models, serializers
+from ..models import UtilisateurAPI
+from .. import serializers
 from . import auth_response
 
 
@@ -30,7 +31,7 @@ class AuthenticationAPI:
         uname = request.data.get('username')
         pwd = request.data.get('password')
         print(f'user: {uname}, {pwd}')
-        user = models.Utilisateur.username_auth(uname, pwd)
+        user = UtilisateurAPI.username_auth(uname, pwd)
         if user:
             return AuthenticationAPI.response(user)
         return Response('User not exist', status=status.HTTP_404_NOT_FOUND)

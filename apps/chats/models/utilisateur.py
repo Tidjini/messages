@@ -5,8 +5,8 @@ from rest_framework.authtoken.models import Token
 from .mixins import TimeStampedModel, ModelUtilsMixin
 
 
-
 class Utilisateur(AbstractBaseUser, ModelUtilsMixin, TimeStampedModel):
+
     # override primary key with char key, review for UUID
     # id = models.IntegerField(primary_key=True, auto_created=True)
     username = models.CharField(max_length=30, unique=True)
@@ -40,16 +40,6 @@ class Utilisateur(AbstractBaseUser, ModelUtilsMixin, TimeStampedModel):
     #     models.CharField(max_length=50, blank=True, null=True), blank=True, default=list
     # )
 
-    def lower_data(self, *args):
-        data = {
-            k: v.lower()
-            for k, v in self.dictionary.items()
-            if k in args and type(v) is str
-        }
-        rest = {k: v for k, v in self.dictionary.items() if k not in args}
-        data.update(rest)
-        return data
-
     def create(self, *args, **kwargs):
         data = self.lower_data("username", "nom", "prenom")
         self.set_password(data["password"])
@@ -58,17 +48,6 @@ class Utilisateur(AbstractBaseUser, ModelUtilsMixin, TimeStampedModel):
         self.is_active = True
         self.__dict__.update(data)
         super(Utilisateur, self).save(*args, **kwargs)
-
-    def exist(self, *args):
-
-        fields = {k: v for k, v in self.dictionary.items() if k in args}
-        try:
-            return Utilisateur.objects.get(**fields)
-        except Utilisateur.MultipleObjectsReturned:
-            # todo review this in some cases
-            return Utilisateur.objects.filter(**fields)[0]
-        except Utilisateur.DoesNotExist:
-            return None
 
     def exist_with_password(self, *args):
         existed_user = self.exist(*args)
@@ -83,7 +62,10 @@ class Utilisateur(AbstractBaseUser, ModelUtilsMixin, TimeStampedModel):
             self.id = old.id
             # set hashed password for old entity
             self.set_password(self.password)
-            return super(Utilisateur, self).save(*args, **kwargs)
+            try:
+                return super(Utilisateur, self).save(*args, **kwargs)
+            except Exception as e:
+                raise ValueError(f"Exception due to : {e}")
 
         raise ValueError(
             "Username exist but password is wrong. check password or try other username"
@@ -97,15 +79,6 @@ class Utilisateur(AbstractBaseUser, ModelUtilsMixin, TimeStampedModel):
             return self.update(old, *args, **kwargs)
 
         self.create(*args, **kwargs)
-
-    @staticmethod
-    def username_auth(username, password, *args, **kwargs):
-        user = Utilisateur(username=username.lower(), password=password)
-        user = user.exist_with_password("username")
-        # make sure is active
-        if user and user.is_active:
-            return user
-        return None
 
     @property
     def name(self):
@@ -128,10 +101,22 @@ class Utilisateur(AbstractBaseUser, ModelUtilsMixin, TimeStampedModel):
 
     @property
     def token_key(self):
-        token = Token.objects.get(user=self)
+        token = self.auth_token
         if token:
             return token.key
         return None
 
     def __str__(self):
         return "username:{}, nom:{}".format(self.username, self.nom)
+
+
+class UtilisateurAPI:
+
+    @staticmethod
+    def username_auth(username, password, *args, **kwargs):
+        user = Utilisateur(username=username.lower(), password=password)
+        user = user.exist_with_password("username")
+        # make sure is active
+        if user and user.is_active:
+            return user
+        return None
