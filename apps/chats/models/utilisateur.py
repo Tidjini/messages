@@ -112,7 +112,6 @@ class Utilisateur(AbstractBaseUser, ModelUtilsMixin, TimeStampedModel):
 
 class UtilisateurAPI:
 
-    @staticmethod
     def username_auth(username, password, *args, **kwargs):
         user = Utilisateur(username=username.lower(), password=password)
         user = user.exist_with_password("username")

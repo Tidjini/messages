@@ -10,7 +10,7 @@ from . import auth_response
 
 class AuthenticationAPI:
 
-    @staticmethod
+    # @staticmethod
     def response(user, *args, **kwargs):
         serializer = serializers.UtilisateurSerializer(user)
         response = auth_response(user, serializer)
@@ -18,14 +18,14 @@ class AuthenticationAPI:
 
     @api_view(('GET',))
     @permission_classes((permissions.IsAuthenticated,))
-    @staticmethod
+    # @staticmethod
     def token(request, *args, **kwargs):
         # set request header with Authorisation: token xxxxxxxxxxxxxx
         user = request.user
         return AuthenticationAPI.response(user)
 
     @api_view(('POST', ))
-    @staticmethod
+    # @staticmethod
     def username(request, *args, **kwargs):
 
         uname = request.data.get('username')
