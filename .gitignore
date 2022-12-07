@@ -1,6 +1,7 @@
 __pycache__
+bin/
 static
-db.sqlite3
+*.sqlite3
 .vscode
 .env
 
