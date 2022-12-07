@@ -14,5 +14,5 @@ application = socketio.WSGIApp(sio, django_app)
 
 server = WebSocketServer(
     # ('0.0.0.0', 8000), application, handler_class=WSGIHandler)
-    ('0.0.0.0', 80), application)
+    ('0.0.0.0', 8000), application)
 server.serve_forever()

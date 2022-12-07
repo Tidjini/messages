@@ -15,5 +15,6 @@ pillow = "*"
 django-filter = "*"
 requests = "*"
 dj-database-url = "*"
+python-decouple = "*"
 
 [dev-packages]

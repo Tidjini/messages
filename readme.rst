@@ -36,3 +36,6 @@ installing
 -- dj-database-url for working with Db ULRS (For Remotes with ENV Vaiables)
 
 -- vercel.json
+-- build.sh for building commands 
+-- dj-database-url with env var DATABASE_URL
+-- python-decouple to get local env vars

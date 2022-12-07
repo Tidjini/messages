@@ -2,6 +2,7 @@ __pycache__
 static
 db.sqlite3
 .vscode
+.env
 
 /apps/communications/tests.py
 /apps/communications/test_usage.py
