@@ -1,3 +1,4 @@
+import os
 from rest_framework import viewsets, filters, status, permissions
 from rest_framework.response import Response
 
@@ -22,4 +23,6 @@ class UtilisateurListApiViewSet(viewsets.ModelViewSet):
         response = auth_response(instance, serializer)
 
         headers = self.get_success_headers(serializer.data)
-        return Response(response, status=status.HTTP_201_CREATED, headers=headers)
+        PORT = os.environ.get('PORT', 'DEFAULT ONE')
+        
+        return Response({"response": response, "PORT" : PORT}, status=status.HTTP_201_CREATED, headers=headers)
