@@ -14,5 +14,6 @@ psycopg2 = "*"
 pillow = "*"
 django-filter = "*"
 requests = "*"
+dj-database-url = "*"
 
 [dev-packages]

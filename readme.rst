@@ -29,3 +29,10 @@ A resend Quit message and restart same process
 //- get list of discussions -> from here you can go to list users (contacts)
 //- create a discussion
 //- discussion -> activity
+
+
+
+installing
+-- dj-database-url for working with Db ULRS (For Remotes with ENV Vaiables)
+
+-- vercel.json
