@@ -19,5 +19,9 @@ PORT = os.environ.get('PORT', '8000')
 
 server = WebSocketServer(
     # ('0.0.0.0', 8000), application, handler_class=WSGIHandler)
-    ('0.0.0.0', int(PORT)), app)
+    ('0.0.0.0', 8000), app)
+
+# server = WebSocketServer(
+#     # ('0.0.0.0', 8000), application, handler_class=WSGIHandler)
+#     ('0.0.0.0', int(PORT)), app)
 server.serve_forever()
