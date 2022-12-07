@@ -16,12 +16,12 @@
     ],
     "routes": [
       {
-        "source": "/static/(.*)",
-        "destination": "/static/$1"
+        "src": "/static/(.*)",
+        "dest": "/static/$1"
       },
       {
-        "source": "/(.*)",
-        "destination": "config/wsgi.py"
+        "src": "/(.*)",
+        "dest": "config/wsgi.py"
       }
     ]
   }
