@@ -15,16 +15,14 @@ from apps.communications.views import sio
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 
 
-app = get_wsgi_application()
+webapp = get_wsgi_application()
 
 # app instead of application for vercel
-# app = socketio.WSGIApp(sio, web_app)
+app = socketio.WSGIApp(sio, webapp)
 
-print("port",os.environ.get('port', 'None'))
-print("PORT",os.environ.get('PORT', 'None'))
-print("SERVER-PORT",os.environ.get('SERVER-PORT', 'None'))
 
-# server = WebSocketServer(('0.0.0.0', 80), app)
+
+server = WebSocketServer(('localhost', 80), app)
 #     # ('0.0.0.0', 8000), application, handler_class=WSGIHandler)
     
 # # print('WebSocketHandler', WebSocketHandler.get_environ()['REMOTE_PORT'])
@@ -34,6 +32,6 @@ print("SERVER-PORT",os.environ.get('SERVER-PORT', 'None'))
 # #     ('0.0.0.0', int(PORT)), app)
 
 
-# server.serve_forever()
+server.serve_forever()
 
 

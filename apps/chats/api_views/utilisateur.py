@@ -14,6 +14,11 @@ class UtilisateurListApiViewSet(viewsets.ModelViewSet):
     filter_backends = filters.OrderingFilter,
     ordering_fields = 'name', 'telephone', 'exercice'
     pagination_class = None
+    
+    def list(self, request, *args, **kwargs):
+        
+
+        return super().list(request, *args, **kwargs)
 
     def create(self, request, *args, **kwargs):
         # override create to send token to user
