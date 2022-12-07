@@ -3,6 +3,7 @@ Message Application
 """
 import os
 from pathlib import Path
+import dj_database_url
 
 # django
 from django.core.exceptions import ImproperlyConfigured
@@ -94,6 +95,8 @@ DATABASES = {
     }
 }
 
+
+DATABASES['default'] = dj_database_url.config()
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
