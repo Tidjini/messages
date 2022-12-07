@@ -16,5 +16,6 @@ django-filter = "*"
 requests = "*"
 dj-database-url = "*"
 python-decouple = "*"
+psycopg2-binary = "*"
 
 [dev-packages]
