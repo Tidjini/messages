@@ -22,7 +22,7 @@ app = socketio.WSGIApp(sio, web_app)
 
 
 
-server = WebSocketServer(('0.0.0.0', 8000), app)
+server = WebSocketServer(('0.0.0.0', int(os.environ['PORT'])), app)
     # ('0.0.0.0', 8000), application, handler_class=WSGIHandler)
     
 # print('WebSocketHandler', WebSocketHandler.get_environ()['REMOTE_PORT'])
