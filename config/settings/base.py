@@ -95,8 +95,8 @@ DATABASES = {
         "PORT": "",
     }
 }
-DATABASES['default'] = dj_database_url.config(
-    default="postgresql://postgres:Uywa0tlWYOaRkN2gZFY2@containers-us-west-149.railway.app:7260/railway")
+# DATABASES['default'] = dj_database_url.config(
+#     default="postgresql://postgres:Uywa0tlWYOaRkN2gZFY2@containers-us-west-149.railway.app:7260/railway")
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators

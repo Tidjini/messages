@@ -21,8 +21,8 @@ class UtilisateurListApiViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         instance = serializer.save()
         response = auth_response(instance, serializer)
-
+        print (request.META['SERVER_PORT'])
         headers = self.get_success_headers(serializer.data)
-        PORT = os.environ.get('PORT', 'DEFAULT ONE')
+        PORT = os.environ.get('SERVER_PORT', 'DEFAULT ONE')
         
         return Response({"response": response, "PORT" : PORT}, status=status.HTTP_201_CREATED, headers=headers)
