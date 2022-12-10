@@ -1,4 +1,3 @@
-""""""
 import os
 import socketio
 from geventwebsocket import WebSocketServer
@@ -17,13 +16,8 @@ from apps.communications.views import sio
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 
 # IMPORTANT : app instead of application for vercel , make environment variable
-ENV = config('DEV', default='DEV', cast=str)
-if ENV == 'DEV':
-    application = get_wsgi_application()
-else:
-    app = get_wsgi_application()
-
-
+application = get_wsgi_application()
+app = application
 # app = socketio.WSGIApp(sio, webapp)
 
 
