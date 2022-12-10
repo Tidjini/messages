@@ -7,6 +7,7 @@ from rest_framework.authtoken.models import Token
 from .models.discussion import Message
 from .serializers import MessageNotificationSerializer, MessageSerializer
 from apps.communications.views import sio
+from .services import notify_users
 
 
 @receiver(post_save, sender=settings.AUTH_USER_MODEL)
@@ -29,4 +30,5 @@ def message_notification(sender, instance: Message, created, **kwargs):
         return
 
     serializer = MessageNotificationSerializer(instance)
-    sio.emit(participant.token_key, serializer.data)
+    notify_users("test", serializer.data)
+    # sio.emit(participant.token_key, serializer.data)

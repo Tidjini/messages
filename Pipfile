@@ -16,5 +16,6 @@ requests = "*"
 dj-database-url = "*"
 python-decouple = "*"
 psycopg2-binary = "*"
+websocket-client = "*"
 
 [dev-packages]
